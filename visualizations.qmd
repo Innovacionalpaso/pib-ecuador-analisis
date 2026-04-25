@@ -414,7 +414,7 @@ bubble_chart = alt.Chart(df_bubble_full).mark_circle(stroke='white', strokeWidth
     year_select # Filtramos físicamente por año
 ).properties(
     title={
-        "text": ["Dinámica Sectorial Interactiva"],
+        "text": ["Dinámica Sectores Productivos"],
         "subtitle": ["Use el slider para el tiempo y haga clic en la leyenda para resaltar sectores", ""],
         "fontSize": 20,
         "anchor": "start"
@@ -475,7 +475,7 @@ bubble_chart = alt.Chart(df_bubble_full).mark_circle(stroke='white', strokeWidth
                   scale=alt.Scale(range=[200, 3000]), 
                   legend=None),
     color=alt.Color('grupo:N', 
-                    title='Grupo Económico',
+                    title='Grupo Sector',
                     scale=alt.Scale(domain=['Primario', 'Secundario', 'Terciario'],
                                     range=['#00687d', '#00895c', '#a9b970']), # Azul, Celeste, Rojo suave
                     legend=alt.Legend(orient='bottom', symbolSize=200)),
@@ -494,7 +494,7 @@ bubble_chart = alt.Chart(df_bubble_full).mark_circle(stroke='white', strokeWidth
     year_select
 ).properties(
     title={
-        "text": ["Estructura y Dinámica Económica por Sectores"],
+        "text": ["Dinámica por Grupo de Sectores Productivos"],
         "subtitle": ["Leyenda agrupada por nivel de actividad (Primario, Secundario, Terciario)", ""],
         "fontSize": 20,
         "anchor": "start"
