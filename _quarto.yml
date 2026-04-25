@@ -5,7 +5,7 @@ project:
 
 website:
   title: "PIB Ecuador 2000-2025"
-  site-url: https://[tu-usuario].github.io/[repositorio]/
+  site-url: https://github.com/Innovacionalpaso/pib-ecuador-analisis
 
   navbar:
     background: primary
@@ -19,13 +19,13 @@ website:
         href: visualizations.qmd
     right:
       - icon: github
-        href: https://github.com/[tu-usuario]/[repositorio]
+        href: https://github.com/Innovacionalpaso/pib-ecuador-analisis
 
   page-footer:
-    left: "© 2025 | Análisis Económico Senior"
+    left: "© abril 2026 | Bayron Panamá"
     right:
       - icon: github
-        href: https://github.com/[tu-usuario]/[repositorio]
+        href: https://github.com/Innovacionalpaso/pib-ecuador-analisis
 
 format:
   html:

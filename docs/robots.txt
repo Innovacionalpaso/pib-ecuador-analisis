@@ -1,1 +1,1 @@
-Sitemap: https://[tu-usuario].github.io/[repositorio]/sitemap.xml
+Sitemap: https://github.com/Innovacionalpaso/pib-ecuador-analisis/sitemap.xml
