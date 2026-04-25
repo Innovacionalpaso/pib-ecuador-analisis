@@ -276,7 +276,7 @@ heatmap
 
 Durante la crisis de 2020 (pandemia), casi todos los sectores se vuelven color lila, pero Construcción y Comercio muestran las caídas más pronunciadas, identificándolos como los más afectados de la recesión económica.
 
-# 4. Comparación de Perfiles: Gráfico Radar (Auge vs. Crisis)
+# 4. Comparación de Perfiles: Gráfico Barras (Auge vs. Crisis)
 **Pregunta analítica:** ¿Cómo se compara el perfil de crecimiento sectorial de Ecuador en un año de auge (2014) versus un año de crisis (2020)?
 
 **Gráfico ideal:** Un gráfico barras es perfecto para comparar múltiples variables (sectores) entre dos puntos en el tiempo, mostrando de forma intuitiva las "fortalezas" y "debilidades" relativas.

@@ -6,9 +6,7 @@ project:
 website:
   title: "PIB Ecuador 2000-2025"
   site-url: https://[tu-usuario].github.io/[repositorio]/
-  repo-url: https://github.com/[tu-usuario]/[repositorio]
-  repo-actions: [edit, issue]
-  
+
   navbar:
     background: primary
     search: true

@@ -17,7 +17,7 @@ execute:
 
 ## Contexto Económico
 
-Este proyecto presenta un análisis exhaustivo del **Producto Interno Bruto (PIB) del Ecuador** desde el año 2000 hasta 2025 (proyección), utilizando el enfoque de la producción. Las cifras, expresadas en **millones de dólares**, desglosan el valor agregado bruto (VAB) de 21 actividades económicas, así como los impuestos netos sobre los productos.
+Este proyecto presenta un análisis exhaustivo del **Producto Interno Bruto (PIB) del Ecuador** desde el año 2000 hasta 2025 (proyección), utilizando el enfoque de la producción. Las cifras, expresadas en **millones de dólares**, desglosan el valor agregado bruto (VAB) de 20 actividades económicas, así como los impuestos netos sobre los productos.
 
 El análisis se basa en datos oficiales y busca responder preguntas clave sobre la dinámica y estructura de la economía ecuatoriana, identificando patrones de crecimiento, volatilidad sectorial y cambios estructurales a lo largo de más de dos décadas.
 
@@ -32,11 +32,11 @@ Comprender la estructura productiva de un país es fundamental para el diseño d
 
 ## Preguntas Analíticas Centrales
 
-1.  **Evolución y Tendencias:** ¿Cómo ha evolucionado el PIB total y los grandes sectores (primario, secundario, terciario) en el periodo 2000-2025?
-2.  **Estructura Productiva:** ¿Qué sectores productivos explican la mayor parte del PIB? ¿Ha cambiado su participación relativa?
-3.  **Volatilidad y Crisis:** ¿Qué actividades económicas presentan mayor volatilidad en el tiempo? ¿Qué sectores amplifican las caídas económicas (ej. 2009, 2016, 2020)?
-4.  **Patrones de Crecimiento:** ¿Qué sectores han mostrado un crecimiento más dinámico y sostenido? ¿Existen sectores estructuralmente rezagados?
-5.  **Comparativa de Perfiles:** ¿Cómo se compara el perfil productivo de Ecuador entre un año de auge (ej. 2014) y uno de crisis (ej. 2020)?
+1.  **Evolución y Tendencias:** ¿Cómo ha evolucionado el PIB total del Ecuador en el periodo 2000-2025, y cuáles son los principales puntos de inflexión?
+2.  **Estructura Productiva:** ¿Cómo ha evolucionado la participación de los sectores primario, secundario y terciario en la economía ecuatoriana entre 2000 y 2025?
+3.  **Volatilidad y Crisis:**  ¿Qué sectores son más volátiles? ¿Cuáles amplifican las caídas económicas durante las crisis?
+4.  **Comparativa de Perfiles:** ¿Cómo se compara el perfil de crecimiento sectorial de Ecuador en un año de auge (2014) versus un año de crisis (2020)?
+5.  **CDinámica Sectorial y Escala:** ¿Existe relación entre el tamaño de un sector y su tasa de crecimiento? ¿Los sectores más grandes crecen más lentamente?
 
 ## Descripción del Dataset
 

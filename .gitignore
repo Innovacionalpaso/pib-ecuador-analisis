@@ -16,3 +16,5 @@ Thumbs.db
 
 # Opcional: si el Excel es muy grande
 # IEM-432-e.xlsx
+/.quarto/
+**/*.quarto_ipynb
