@@ -1,0 +1,530 @@
+---
+title: "Análisis y Visualizaciones del PIB de Ecuador"
+format:
+  html:
+    embed-resources: true
+    theme: flatly
+    toc: true
+    code-fold: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{python}
+#| label: setup
+import pandas as pd
+import numpy as np
+import altair as alt
+
+# Configuración global de Altair
+alt.data_transformers.enable('default')
+alt.themes.enable('fivethirtyeight')
+
+# Cargar datos transformados (desde data_cleaning.qmd)
+# En un entorno real, podríamos guardar y cargar los dataframes limpios.
+# Para este ejemplo, reproducimos las transformaciones clave.
+
+# --- Carga y transformación (mismo código que en data_cleaning) ---
+df_nominal = pd.read_excel('IEM-432-e.xlsx', sheet_name='nominal')
+df_variacion = pd.read_excel('IEM-432-e.xlsx', sheet_name='Variación(%)')
+
+df_nominal = df_nominal.rename(columns={'Periodo': 'anio'})
+df_variacion = df_variacion.rename(columns={'Periodo': 'anio'})
+
+df_nominal_long = df_nominal.melt(id_vars=['anio'], var_name='sector', value_name='valor_millones_usd')
+df_variacion_long = df_variacion.melt(id_vars=['anio'], var_name='sector', value_name='variacion_pct')
+df_variacion_long = df_variacion_long.dropna(subset=['variacion_pct'])
+
+sector_map = {
+    'Agricultura ganadería y silvicultura': 'Primario', 'Pesca y acuicultura': 'Primario',
+    'Explotación de minas y canteras': 'Primario', 'Manufactura de productos alimenticios': 'Secundario',
+    'Manufactura de productos no alimenticios': 'Secundario', 'Refinados de petróleo': 'Secundario',
+    'Suministro de electricidad y agua': 'Secundario', 'Construcción': 'Secundario',
+    'Comercio': 'Terciario', 'Transporte y almacenamiento': 'Terciario',
+    'Alojamiento y comidas': 'Terciario', 'Información y comunicación': 'Terciario',
+    'Actividades financieras y de seguros': 'Terciario', 'Actividades inmobiliarias': 'Terciario',
+    'Actividades profesionales técnicas': 'Terciario', 'Administración pública': 'Terciario',
+    'Enseñanza': 'Terciario', 'Salud y asistencia social': 'Terciario',
+    'Arte entretenimiento y otras actividades de servicios': 'Terciario',
+    'Actividades de los Hogares como empleadores': 'Terciario',
+    'VAB Total': 'Total', 'Impuestos Netos Sobre los Productos': 'Impuestos', 'PIB': 'Total'
+}
+df_nominal_long['grupo'] = df_nominal_long['sector'].map(sector_map)
+df_sectores = df_nominal_long[~df_nominal_long['sector'].isin(['VAB Total', 'PIB', 'Impuestos Netos Sobre los Productos'])]
+df_sectores_grupo = df_sectores.groupby(['anio', 'grupo'])['valor_millones_usd'].sum().reset_index()
+# --- Fin de carga y transformación ---
+```
+
+# 1. Evolución y Tendencias: Serie de Tiempo del PIB
+**Pregunta analítica:** ¿Cómo ha evolucionado el PIB total del Ecuador en el periodo 2000-2025, y cuáles son los principales puntos de inflexión?
+
+**Gráfico ideal:** Un gráfico de líneas es el más adecuado para mostrar tendencias a lo largo del tiempo, permitiendo identificar claramente periodos de crecimiento, estancamiento o contracción.
+
+```{python}
+#| label: fig-pib-trend
+
+# 1. Preparar datos: Unir PIB con Variación
+# Calcular variación anual del PIB
+pib_with_variation = df_nominal[['anio', 'PIB']].copy()
+pib_with_variation['variacion_pib'] = pib_with_variation['PIB'].pct_change() * 100  # En porcentaje
+
+# 2. Gráfico base del PIB (Línea principal)
+pib_line = alt.Chart(pib_with_variation).mark_line(color='#1f77b4', strokeWidth=3).encode(
+    x=alt.X('anio:Q', title='Año', axis=alt.Axis(format='d')),
+    y=alt.Y('PIB:Q', title='PIB (millones de USD)', axis=alt.Axis(format='.0f')),
+    tooltip=[
+        alt.Tooltip('anio:Q', title='Año', format='d'),
+        alt.Tooltip('PIB:Q', title='PIB (millones USD)', format=',.0f'),
+        alt.Tooltip('variacion_pib:Q', title='Variación anual', format='.1f')
+    ]
+).properties(
+    title='Evolución y Tendencia del PIB de Ecuador (2000-2025)',
+    width='container',
+    height=400
+)
+
+# 3. Línea de Tendencia
+trend_line = alt.Chart(pib_with_variation).mark_line(
+    color='#e67e22', 
+    strokeDash=[5, 5], 
+    opacity=0.7
+).transform_regression(
+    'anio', 'PIB', method='linear', as_=['anio', 'Tendencia']
+).encode(
+    x='anio:Q',
+    y='Tendencia:Q',
+    tooltip=[
+        alt.Tooltip('anio:Q', title='Año', format='d'),
+        alt.Tooltip('Tendencia:Q', title='Valor Tendencia', format=',.0f')
+    ]
+)
+
+# 4. Puntos
+pib_points = alt.Chart(pib_with_variation).mark_point(
+    color='#1f77b4', 
+    filled=True, 
+    size=80
+).encode(
+    x='anio:Q',
+    y='PIB:Q',
+    tooltip=[
+        alt.Tooltip('anio:Q', title='Año', format='d'),
+        alt.Tooltip('PIB:Q', title='PIB (millones USD)', format=',.0f'),
+        alt.Tooltip('variacion_pib:Q', title='% Variación anual', format='.1f')
+    ]
+)
+
+# 5. Anotaciones
+annotations = alt.Chart(pd.DataFrame({
+    'x': [2020, 2016, 2009],
+    'y': [95000, 90000, 55000],
+    'text': ['COVID-19', 'Terremoto', 'Crisis financiera global']
+})).mark_text(align='center', dx=0, dy=-20, fontSize=12, fontWeight='bold').encode(
+    x='x:Q',
+    y='y:Q',
+    text='text:N'
+)
+
+# Combinar
+final_chart = (pib_line + trend_line + pib_points + annotations).interactive()
+final_chart
+```
+**Interpretación:** El gráfico muestra una clara tendencia creciente del PIB ecuatoriano, que pasa de ~17,530 millones en 2000 a ~130,320 millones en 2025 (proyectado). Se observan tres caídas significativas: en 2009 (crisis financiera global), 2016 (terremoto y caída del precio del petróleo) y una caída abrupta en 2020 debido a la pandemia de COVID-19. La recuperación posterior a 2020 es notable, con el PIB superando niveles prepandemia en 2022.
+
+
+# 2. Estructura Productiva: Composición Sectorial
+**Pregunta analítica:** ¿Cómo ha evolucionado la participación de los sectores primario, secundario y terciario en la economía ecuatoriana entre 2000 y 2025?
+
+**Gráfico ideal:** Un gráfico de areas apiladas al 100% es el estándar para visualizar cambios en la composición relativa a lo largo del tiempo.
+```{python}
+#| label: fig-area-trends-premium
+df_sectores_grupo['porcentaje'] = df_sectores_grupo.groupby('anio')['valor_millones_usd'].transform(lambda x: 100 * x / x.sum())
+# Orden de grupos para la leyenda
+order_grupos = ['Primario', 'Secundario', 'Terciario']
+# Paleta de colores formal (Slate, Blue, Teal)
+# Primario: Gris azulado, Secundario: Azul acero, Terciario: Azul profundo
+formal_colors = ['#00687d', '#00895c', '#a9b970'] 
+
+area_chart = alt.Chart(df_sectores_grupo).mark_area(
+    line={'color': 'white', 'width': 0.5}, # Línea divisoria sutil
+    opacity=0.9
+).encode(
+    x=alt.X('anio:Q', 
+        title='Periodo Anual', 
+        axis=alt.Axis(format='d', grid=False, labelFlush=False, titleAnchor='end')
+    ),
+    y=alt.Y('porcentaje:Q', 
+        stack='normalize', 
+        title='Participación del PIB (%)',
+        axis=alt.Axis(format='%', domain=False, ticks=False) # Formato porcentaje
+    ),
+    color=alt.Color('grupo:N', 
+        scale=alt.Scale(domain=order_grupos, range=formal_colors),
+        legend=alt.Legend(
+            title="Sector Económico",
+            orient='top-left',
+            offset=5,
+            symbolType='circle'
+        )
+    ),
+    tooltip=[
+        alt.Tooltip('anio:Q', title='Año'),
+        alt.Tooltip('grupo:N', title='Sector'),
+        alt.Tooltip('porcentaje:Q', title='% Participación', format='.2f')
+    ]
+).properties(
+    title={
+        "text": ["Evolución de la Estructura Productiva Nacional"], 
+        "subtitle": ["Participación porcentual de los sectores Primario, Secundario y Terciario (2000-2025)"],
+        "fontSize": 20,
+        "subtitleFontSize": 14,
+        "anchor": "start",
+        "color": "#1e293b",
+        "subtitleColor": "#64748b"
+    },
+    width=800,
+    height=450
+).configure_view(
+    stroke=None # Limpieza de bordes externos
+).configure_axis(
+    labelColor='#64748b',
+    titleColor='#475569',
+    labelFontSize=11
+)
+
+area_chart
+```
+**Interpretación:** El gráfico revela un proceso de concentración en el sector terciario en la economía ecuatoriana. El sector terciario (servicios) ha incrementado su participación, pasando de aproximadamente 50% en 2000 a subrepasar el 60% a partir del 2015. El sector secundario (industria y construcción) ha perdido peso relativo, mientras que el sector primario (agricultura, pesca, minería) mantiene una participación estable en torno al 15-20%, aunque con un ligero repunte en años recientes impulsado por la minería.
+
+# 3. Patrones de Vulnerabilidad: Mapa de Calor de Variaciones
+**Pregunta analítica:** ¿Qué sectores son más volátiles? ¿Cuáles amplifican las caídas económicas durante las crisis?
+
+**Gráfico ideal:** Un mapa de calor (heatmap) es excepcional para identificar patrones de rendimiento (colores) a través de dos dimensiones: sectores (eje Y) y años (eje X). Permite detectar de un vistazo qué sectores se "enrojecen" (caen) más en años de crisis.
+```{python}
+#| label: fig-heatmap-profesional
+
+# 1. Definir sectores de interés
+sectores_interes = [
+'Agricultura ganadería y silvicultura', 
+'Pesca y acuicultura', 
+'Explotación de minas y canteras', 
+'Manufactura de productos alimenticios', 
+'Manufactura de productos no alimenticios', 
+'Refinados de petróleo', 
+'Suministro de electricidad y agua', 
+'Construcción', 
+'Comercio', 
+'Transporte y almacenamiento', 
+'Alojamiento y comidas', 
+'Información y comunicación', 
+'Actividades financieras y de seguros', 
+'Actividades inmobiliarias', 
+'Actividades profesionales técnicas', 
+'Administración pública', 
+'Enseñanza', 
+'Salud y asistencia social', 
+'Arte entretenimiento y otras actividades de servicios', 
+'Actividades de los Hogares como empleadores'
+]
+df_heatmap = df_variacion_long[df_variacion_long['sector'].isin(sectores_interes)]
+
+# 2. Crear el heatmap con estética mejorada
+heatmap = alt.Chart(df_heatmap).mark_rect(
+    stroke='white', # Añade borde blanco entre celdas para mayor claridad
+    strokeWidth=0.5
+).encode(
+    x=alt.X('anio:O', 
+        title='Año', 
+        axis=alt.Axis(labelAngle=-45, grid=False)
+    ),
+    y=alt.Y('sector:N', 
+        title='Sector Económico', 
+        sort=None
+    ),
+    color=alt.Color('variacion_pct:Q', 
+        title='Crecimiento (%)',
+        scale=alt.Scale(
+            scheme='viridis', # Opción A: 'viridis' (profesional), Opción B: 'magma' (más cálido)
+            reverse=False 
+        ),
+        legend=alt.Legend(format='.1%', gradientLength=200)
+    ),
+    tooltip=[
+        alt.Tooltip('anio:O', title='Año'),
+        alt.Tooltip('sector:N', title='Sector'),
+        alt.Tooltip('variacion_pct:Q', title='Variación', format='.2%')
+    ]
+).properties(
+    title={
+        "text": ["Mapa de Calor de Crecimiento Sectorial Anual"], 
+        "subtitle": ["Periodo 2001-2025 | Valores normalizados según desempeño real"],
+        "fontSize": 18,
+        "anchor": "start",
+        "color": "black"
+    },
+    width=800,
+    height=400
+).configure_view(
+    strokeWidth=0 # Quita el borde exterior del gráfico
+)
+
+heatmap
+```
+**Interpretación:** El mapa de calor confirma la alta volatilidad de sectores como Refinados de petróleo y Explotación de minas y canteras, que muestran alternancia extrema de rojos (caídas) y azules (crecimientos). Esto refleja su sensibilidad a los precios internacionales de las materias primas.
+
+Durante la crisis de 2020 (pandemia), casi todos los sectores se vuelven color lila, pero Construcción y Comercio muestran las caídas más pronunciadas, identificándolos como los más afectados de la recesión económica.
+
+# 4. Comparación de Perfiles: Gráfico Radar (Auge vs. Crisis)
+**Pregunta analítica:** ¿Cómo se compara el perfil de crecimiento sectorial de Ecuador en un año de auge (2014) versus un año de crisis (2020)?
+
+**Gráfico ideal:** Un gráfico barras es perfecto para comparar múltiples variables (sectores) entre dos puntos en el tiempo, mostrando de forma intuitiva las "fortalezas" y "debilidades" relativas.
+
+```{python}
+#| label: fig-radar-ajustado
+
+# 1. Función para preparar los datos
+def prepare_radar_data(year1, year2):
+    # Filtrar variaciones para los dos años
+    v1 = df_variacion_long[df_variacion_long['anio'] == year1][['sector', 'variacion_pct']].rename(columns={'variacion_pct': f'var_{year1}'})
+    v2 = df_variacion_long[df_variacion_long['anio'] == year2][['sector', 'variacion_pct']].rename(columns={'variacion_pct': f'var_{year2}'})
+    
+    # Unir y excluir agregados y sectores de alta volatilidad extrema para mejorar escala
+    radar_df = pd.merge(v1, v2, on='sector', how='inner')
+    excluir = [
+        'VAB Total', 'PIB', 'Impuestos Netos Sobre los Productos', 
+        'Refinados de petróleo', 'Explotación de minas y canteras'
+    ]
+    radar_df = radar_df[~radar_df['sector'].isin(excluir)]
+    
+    # Seleccionar sectores representativos para legibilidad
+    top_sectores = radar_df.nlargest(20, f'var_{year1}')['sector'].tolist()
+    radar_df = radar_df[radar_df['sector'].isin(top_sectores)]
+    
+    return radar_df.melt(id_vars=['sector'], var_name='año', value_name='variacion')
+
+# 2. Ejecutar preparación
+radar_data = prepare_radar_data(2014, 2020)
+
+# 3. Limpieza de etiquetas para la leyenda
+radar_data['año'] = radar_data['año'].replace({
+    'var_2014': '2014 (Auge)', 
+    'var_2020': '2020 (COVID-19)'
+})
+
+# 4. Creación del gráfico con tamaño horizontal optimizado
+comparative_bars = alt.Chart(radar_data).mark_bar().encode(
+    y=alt.Y('sector:N', 
+            title='Sector Económico', 
+            sort='-x',
+            axis=alt.Axis(labelLimit=300)), # Evita que los nombres largos se corten
+    x=alt.X('variacion:Q', 
+            title='Tasa de Variación (%)', 
+            axis=alt.Axis(format='.0%')),
+    color=alt.Color('año:N', 
+                    title='Periodo Analizado', 
+                    scale=alt.Scale(domain=['2014 (Auge)', '2020 (COVID-19)'], 
+                                    range=['#2ca02c', '#d62728']),
+                    legend=alt.Legend(orient='bottom', titleFontSize=12, labelFontSize=11)),
+    tooltip=[
+        alt.Tooltip('sector:N', title='Sector'),
+        alt.Tooltip('año:N', title='Año'),
+        alt.Tooltip('variacion:Q', title='Variación', format='.2%')
+    ]
+).properties(
+    title={
+        "text": ["Comparativa de Crecimiento Sectorial"],
+        "subtitle": ["Contraste entre el auge de 2014 y la crisis de 2020", ""],
+        "anchor": "start",
+        "fontSize": 18
+    },
+    width=280,  # Tamaño reducido por panel para que el total sea compacto
+    height=450
+).facet(
+    column=alt.Column('año:N', 
+                      header=alt.Header(title=None, labelFontSize=13, labelFontWeight='bold'))
+).resolve_scale(
+    x='independent' # Permite escalas propias para apreciar mejor las caídas de 2020
+).configure_facet(
+    spacing=40 # Espacio equilibrado entre ambos gráficos
+).configure_view(
+    stroke=None
+)
+
+comparative_bars
+```
+
+
+**Interpretación:** Este gráfico dual (o barras horizontales comparativas, una alternativa clara al radar) ilustra dramáticamente el impacto de la pandemia en 2020. Mientras que en 2014 casi todos los sectores mostraban tasas de crecimiento positivas (barras verdes a la derecha), en 2020 la mayoría presentan contracciones severas (barras rojas a la izquierda). Sectores como Comercio, y construcción fueron los más golpeados. Este análisis confirma que los sectores intensivos en contacto social y movilidad son los más vulnerables en crisis sanitarias.
+
+# 5. Relación entre PIB y Variación: Gráfico de Burbujas
+**Pregunta analítica:** ¿Existe relación entre el tamaño de un sector y su tasa de crecimiento? ¿Los sectores más grandes crecen más lentamente?
+
+**Gráfico ideal:** Un gráfico de burbujas (dispersión con tamaño) permite visualizar tres dimensiones: Tamaño del sector (eje X o tamaño de burbuja), crecimiento (eje Y), y su contribución al PIB total (color o tamaño).
+
+```{python}
+#| label: fig-bubble-interactive-legend
+
+# 1. Preparación de datos (Se mantiene igual)
+df_bubble_full = pd.merge(
+    df_sectores, 
+    df_variacion_long[['anio', 'sector', 'variacion_pct']], 
+    on=['anio', 'sector'], 
+    how='left'
+)
+
+df_bubble_full['porcentaje_vab'] = df_bubble_full.groupby('anio')['valor_millones_usd'].transform(
+    lambda x: 100 * x / x.sum()
+)
+df_bubble_full['anio'] = df_bubble_full['anio'].astype(int)
+
+min_year = int(df_bubble_full['anio'].min())
+max_year = int(df_bubble_full['anio'].max())
+
+# 2. SELECCIÓN 1: Slider de Año
+year_slider = alt.binding_range(min=min_year, max=max_year, step=1, name='Año: ')
+year_select = alt.selection_point(name="Year", fields=['anio'], bind=year_slider, value=[{'anio': max_year}])
+
+# 3. SELECCIÓN 2: Interactividad con la Leyenda (NUEVO)
+# Al hacer clic en la leyenda, se selecciona el sector
+selection_sector = alt.selection_point(fields=['sector'], bind='legend')
+
+# 4. Construcción del Gráfico
+bubble_chart = alt.Chart(df_bubble_full).mark_circle(stroke='white', strokeWidth=1.5).encode(
+    x=alt.X('porcentaje_vab:Q', title='Participación en el PIB (%)', scale=alt.Scale(domain=[0, 20])),
+    y=alt.Y('variacion_pct:Q', 
+            title='Crecimiento Anual (%)', 
+            axis=alt.Axis(format='.0%'),
+            scale=alt.Scale(domain=[-0.02, 0.02], clamp=True)), 
+    size=alt.Size('valor_millones_usd:Q', scale=alt.Scale(range=[200, 3000]), legend=None),
+    color=alt.Color('sector:N', title='Clic para resaltar sector', legend=alt.Legend(columns=2, orient='bottom')),
+    # AJUSTE DE OPACIDAD: Si el sector está seleccionado brilla, si no, se atenúa
+    opacity=alt.condition(selection_sector, alt.value(0.9), alt.value(0.1)),
+    tooltip=[
+        alt.Tooltip('sector:N', title='Sector'),
+        alt.Tooltip('valor_millones_usd:Q', title='Valor (Millones USD)', format=',.0f'),
+        alt.Tooltip('variacion_pct:Q', title='Variación Anual', format='.2%'),
+        alt.Tooltip('porcentaje_vab:Q', title='Participación PIB (%)', format='.1f')
+    ]
+).add_params(
+    year_select,
+    selection_sector # Añadimos la nueva selección
+).transform_filter(
+    year_select # Filtramos físicamente por año
+).properties(
+    title={
+        "text": ["Dinámica Sectorial Interactiva"],
+        "subtitle": ["Use el slider para el tiempo y haga clic en la leyenda para resaltar sectores", ""],
+        "fontSize": 20,
+        "anchor": "start"
+    },
+    width=750,
+    height=500
+)
+
+# Línea de referencia en 0
+rule = alt.Chart(pd.DataFrame({'y': [0]})).mark_rule(color='red', strokeDash=[3,3]).encode(y='y:Q')
+
+(bubble_chart + rule).interactive()
+```
+
+
+```{python}
+#| label: fig-bubble-final-agrupado
+
+# 1. Preparación de datos y aplicación del Mapeo de Sectores
+df_bubble_full = pd.merge(
+    df_sectores, 
+    df_variacion_long[['anio', 'sector', 'variacion_pct']], 
+    on=['anio', 'sector'], 
+    how='left'
+)
+
+# Aplicar tu diccionario de sectores para crear la columna 'grupo'
+df_bubble_full['grupo'] = df_bubble_full['sector'].map(sector_map)
+
+# Filtrar para excluir 'Total', 'Impuestos' y asegurar que solo tengamos P, S y T
+df_bubble_full = df_bubble_full[df_bubble_full['grupo'].isin(['Primario', 'Secundario', 'Terciario'])]
+
+# 2. Cálculos económicos por año
+df_bubble_full['porcentaje_vab'] = df_bubble_full.groupby('anio')['valor_millones_usd'].transform(
+    lambda x: 100 * x / x.sum()
+)
+df_bubble_full['anio'] = df_bubble_full['anio'].astype(int)
+
+# 3. Configuración de Interactividad (Altair 5+)
+min_year, max_year = int(df_bubble_full['anio'].min()), int(df_bubble_full['anio'].max())
+year_slider = alt.binding_range(min=min_year, max=max_year, step=1, name='Año: ')
+year_select = alt.selection_point(name="Year", fields=['anio'], bind=year_slider, value=[{'anio': max_year}])
+
+# Selección por leyenda para los grupos Primario, Secundario y Terciario
+selection_grupo = alt.selection_point(fields=['grupo'], bind='legend')
+
+# 4. Construcción del Gráfico
+bubble_chart = alt.Chart(df_bubble_full).mark_circle(stroke='white', strokeWidth=1.5).encode(
+    x=alt.X('porcentaje_vab:Q', 
+            title='Participación en el PIB (%)', 
+            scale=alt.Scale(domain=[0, 20])),
+    y=alt.Y('variacion_pct:Q', 
+            title='Crecimiento Anual (%)', 
+            axis=alt.Axis(format='.0%'),
+            scale=alt.Scale(domain=[-0.02, 0.02], clamp=True)), 
+    size=alt.Size('valor_millones_usd:Q', 
+                  title='Tamaño (Millones USD)', 
+                  scale=alt.Scale(range=[200, 3000]), 
+                  legend=None),
+    color=alt.Color('grupo:N', 
+                    title='Grupo Económico',
+                    scale=alt.Scale(domain=['Primario', 'Secundario', 'Terciario'],
+                                    range=['#00687d', '#00895c', '#a9b970']), # Azul, Celeste, Rojo suave
+                    legend=alt.Legend(orient='bottom', symbolSize=200)),
+    opacity=alt.condition(selection_grupo, alt.value(0.9), alt.value(0.15)),
+    tooltip=[
+        alt.Tooltip('sector:N', title='Sector Específico'),
+        alt.Tooltip('grupo:N', title='Gran Grupo'),
+        alt.Tooltip('valor_millones_usd:Q', title='Valor (Millones USD)', format=',.0f'),
+        alt.Tooltip('variacion_pct:Q', title='Variación Anual', format='.1%'),
+        alt.Tooltip('porcentaje_vab:Q', title='Participación PIB (%)', format='.1f')
+    ]
+).add_params(
+    year_select,
+    selection_grupo
+).transform_filter(
+    year_select
+).properties(
+    title={
+        "text": ["Estructura y Dinámica Económica por Sectores"],
+        "subtitle": ["Leyenda agrupada por nivel de actividad (Primario, Secundario, Terciario)", ""],
+        "fontSize": 20,
+        "anchor": "start"
+    },
+    width=750,
+    height=500
+)
+
+# Línea de referencia en 0 para identificar crecimiento/recesión
+rule = alt.Chart(pd.DataFrame({'y': [0]})).mark_rule(color='black', strokeWidth=1, strokeDash=[4,2]).encode(y='y:Q')
+
+(bubble_chart + rule).interactive()
+```
+
+**Interpretación:** En 2025 se observa que los sectores de mayor tamaño (burbujas grandes), como Comercio, Agricultura, y Manufactura de productos alimenticios muestran tasas de crecimiento moderadas o cercanas a cero. En contraste, algunos sectores más pequeños, como Alojamiento y Comida, Pesca y Acuicultura, Suministros de Electricidad y Agua, e Información y Comunicación, aunque sean mínima su participación para el Total del PIB, presentan un crecimiento dinámico.
+
+
+# Conclusiones Finales
+
+1. Crecimiento de largo plazo con alta sensibilidad a shocks
+El PIB del Ecuador muestra una tendencia creciente sostenida en el largo plazo, multiplicándose varias veces entre 2000 y 2025. No obstante, esta trayectoria no ha sido lineal: se identifican puntos de inflexión claramente asociados a shocks externos y estructurales, como la crisis financiera global de 2009, el ajuste económico y el terremoto de 2016, y de manera especialmente pronunciada, la pandemia de COVID‑19 en 2020. Esta evidencia confirma que el crecimiento económico ecuatoriano es altamente sensible a perturbaciones externas y a factores no económicos.
+
+2. Terciarización consolidada de la economía
+El análisis de composición sectorial revela un proceso claro y persistente de terciarización. El sector servicios ha incrementado progresivamente su participación, superando el 60 % del PIB a partir de 2015, lo que refleja un cambio estructural en la economía. En contraste, el sector secundario (industria y construcción) ha perdido participación relativa, mientras que el sector primario mantiene un peso estable, aunque con repuntes asociados principalmente a la minería. Este patrón sugiere una economía cada vez más apoyada en actividades de servicios y demanda interna.
+
+3. Alta volatilidad en sectores ligados a recursos naturales y construcción
+El mapa de calor de variaciones sectoriales confirma que no todos los sectores contribuyen de igual forma al ciclo económico. Actividades como Explotación de minas y canteras y Refinación de petróleo presentan una volatilidad elevada, con fuertes expansiones seguidas de caídas abruptas, reflejando su dependencia de precios internacionales. El sector Construcción, por su parte, emerge como uno de los más sensibles a las crisis, amplificando las fases recesivas, especialmente en 2016 y 2020..
+
+4. Impacto asimétrico de la crisis sanitaria de 2020
+La comparación entre un año de auge (2014) y un año de crisis (2020) evidencia un colapso generalizado del crecimiento sectorial durante la pandemia, pero con impactos muy desiguales. Los sectores intensivos en movilidad, contacto social y consumo presencial —como Comercio, Alojamiento y Comidas, y Construcción— registraron las caídas más severas. En cambio, sectores como Administración pública, Enseñanza y Salud mostraron mayor capacidad de amortiguación, cumpliendo un rol estabilizador en la crisis.
+
+5. Relación inversa entre tamaño sectorial y dinamismo
+El análisis de burbujas sugiere una relación inversa entre el tamaño de los sectores y su tasa de crecimiento. Los sectores de mayor peso en el PIB, como Comercio, Agricultura y Manufactura alimenticia, tienden a mostrar tasas de crecimiento moderadas o cercanas a cero, especialmente en años recientes. Por el contrario, sectores de menor tamaño relativo presentan episodios de crecimiento más dinámico, aunque con una contribución limitada al PIB agregado. Esto sugiere la presencia de rigideces estructurales en los sectores dominantes.

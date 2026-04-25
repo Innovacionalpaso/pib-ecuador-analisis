@@ -1,0 +1,54 @@
+---
+title: "Análisis del PIB de Ecuador por Enfoque de la Producción (2000-2025)"
+author: "Bayron Panamá"
+format:
+  html:
+    embed-resources: true
+    theme: flatly
+    toc: true
+    toc-depth: 2
+    code-fold: true
+    code-summary: "Mostrar código"
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Contexto Económico
+
+Este proyecto presenta un análisis exhaustivo del **Producto Interno Bruto (PIB) del Ecuador** desde el año 2000 hasta 2025 (proyección), utilizando el enfoque de la producción. Las cifras, expresadas en **millones de dólares**, desglosan el valor agregado bruto (VAB) de 21 actividades económicas, así como los impuestos netos sobre los productos.
+
+El análisis se basa en datos oficiales y busca responder preguntas clave sobre la dinámica y estructura de la economía ecuatoriana, identificando patrones de crecimiento, volatilidad sectorial y cambios estructurales a lo largo de más de dos décadas.
+
+## Motivación del Análisis
+
+Comprender la estructura productiva de un país es fundamental para el diseño de políticas económicas. Este análisis se motiva en:
+
+- **Identificar los motores del crecimiento económico.**
+- **Detectar sectores vulnerables a las crisis.**
+- **Observar la evolución de la dependencia de recursos naturales (petróleo, minería, agricultura).**
+- **Proveer una base visual e interactiva para la toma de decisiones informada.**
+
+## Preguntas Analíticas Centrales
+
+1.  **Evolución y Tendencias:** ¿Cómo ha evolucionado el PIB total y los grandes sectores (primario, secundario, terciario) en el periodo 2000-2025?
+2.  **Estructura Productiva:** ¿Qué sectores productivos explican la mayor parte del PIB? ¿Ha cambiado su participación relativa?
+3.  **Volatilidad y Crisis:** ¿Qué actividades económicas presentan mayor volatilidad en el tiempo? ¿Qué sectores amplifican las caídas económicas (ej. 2009, 2016, 2020)?
+4.  **Patrones de Crecimiento:** ¿Qué sectores han mostrado un crecimiento más dinámico y sostenido? ¿Existen sectores estructuralmente rezagados?
+5.  **Comparativa de Perfiles:** ¿Cómo se compara el perfil productivo de Ecuador entre un año de auge (ej. 2014) y uno de crisis (ej. 2020)?
+
+## Descripción del Dataset
+
+El archivo `IEM-432-e.xlsx` contiene tres hojas principales:
+
+- **`nominal`**: Valores corrientes en millones de dólares.
+- **`anio_base_2018`**: Valores encadenados con año de referencia 2018 (volumen físico).
+- **`Variación(%)`**: Tasas de crecimiento porcentual real anual.
+
+Para este análisis, utilizaremos principalmente las hojas `nominal` (para composición) y `Variación(%)` (para dinámica y volatilidad).
+
+## Enlaces a las Secciones del Proyecto
+
+- **[Limpieza y Preparación de Datos](data_cleaning.qmd)**
+- **[Análisis y Visualizaciones](visualizations.qmd)**

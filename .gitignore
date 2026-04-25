@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+ambiente_virtual/
+
+# Quarto
+_quarto/
+.quarto/
+
+# Archivos temporales
+.DS_Store
+Thumbs.db
+*.log
+
+# Opcional: si el Excel es muy grande
+# IEM-432-e.xlsx

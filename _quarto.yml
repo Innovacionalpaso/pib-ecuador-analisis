@@ -1,0 +1,58 @@
+project:
+  title: "Análisis del PIB de Ecuador"
+  type: website
+  output-dir: docs
+
+website:
+  title: "PIB Ecuador 2000-2025"
+  site-url: https://[tu-usuario].github.io/[repositorio]/
+  repo-url: https://github.com/[tu-usuario]/[repositorio]
+  repo-actions: [edit, issue]
+  
+  navbar:
+    background: primary
+    search: true
+    left:
+      - text: "Inicio"
+        href: index.qmd
+      - text: "Limpieza"
+        href: data_cleaning.qmd
+      - text: "Visualizaciones"
+        href: visualizations.qmd
+    right:
+      - icon: github
+        href: https://github.com/[tu-usuario]/[repositorio]
+
+  page-footer:
+    left: "© 2025 | Análisis Económico Senior"
+    right:
+      - icon: github
+        href: https://github.com/[tu-usuario]/[repositorio]
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    code-copy: true             # Añade botón para copiar código al portapapele
+    code-fold: true             # Habilita el plegado/desplegado de código
+    code-summary: "Mostrar código"
+    highlight-style: atom-one
+    # --- CONFIGURACIÓN DE PANTALLA ANCHA ---
+    page-layout: full           # Usa todo el ancho disponible
+    fig-width: 12               # Gráficos más anchos
+    fig-height: 6               # Gráficos más altos
+    fig-align: center
+    df-print: kable
+    execute:
+      echo: true
+      warning: false
+      message: false
+      error: false
+
+editor:
+  markdown:
+    wrap: sentence
