@@ -1,0 +1,233 @@
+# Código utilizado para generar el PDF con WeasyPrint
+from weasyprint import HTML
+
+html_content = """
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+            background-color: #f8fafc;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #0f172a;
+            color: white;
+            padding: 25pt;
+            border-radius: 8px;
+            margin-bottom: 20pt;
+            text-align: center;
+        }
+        h1 { margin: 0; font-size: 22pt; letter-spacing: -0.5pt; }
+        h2 { 
+            color: #2563eb; 
+            border-bottom: 2px solid #e2e8f0; 
+            padding-bottom: 5pt; 
+            margin-top: 25pt;
+            font-size: 16pt;
+        }
+        h3 { color: #334155; font-size: 13pt; margin-top: 15pt; }
+        .step-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #2563eb;
+            padding: 12pt;
+            margin-bottom: 12pt;
+            border-radius: 4px;
+        }
+        code {
+            background-color: #f1f5f9;
+            color: #ef4444;
+            padding: 2pt 4pt;
+            border-radius: 4px;
+            font-family: 'Cascadia Code', 'Courier New', monospace;
+            font-size: 9pt;
+        }
+        pre {
+            background-color: #1e293b;
+            color: #f8fafc;
+            padding: 10pt;
+            border-radius: 6px;
+            font-size: 9pt;
+            overflow: hidden;
+            white-space: pre-wrap;
+        }
+        .highlight { color: #38bdf8; font-weight: bold; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15pt 0;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8pt;
+            text-align: left;
+            font-size: 10pt;
+        }
+        th { background-color: #f1f5f9; color: #475569; }
+        .badge {
+            display: inline-block;
+            padding: 2pt 8pt;
+            border-radius: 12pt;
+            font-size: 8pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-error { background: #fee2e2; color: #991b1b; }
+        .diagram {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 15pt;
+            font-family: monospace;
+            font-size: 9pt;
+            text-align: center;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Guía de Git & GitHub: PIB Ecuador</h1>
+        <p>Publicación y Actualización de Proyectos de Análisis</p>
+    </div>
+
+    <h2>PARTE 1: Carga Inicial del Proyecto</h2>
+    <p>Sigue estos pasos la primera vez que vas a subir tu proyecto desde tu PC Windows 10.</p>
+
+    <div class="step-box">
+        <h3>Paso 1: Crear repositorio en GitHub</h3>
+        <ul>
+            <li>Ve a <strong>github.com/new</strong></li>
+            <li>Nombre: <code>pib-ecuador-analisis</code></li>
+            <li>Descripción: <code>Análisis del PIB de Ecuador (2000-2025)</code></li>
+            <li><strong>Importante:</strong> Deja el README, .gitignore y licencia sin marcar.</li>
+            <li>Copia la URL: <code>https://github.com/TU-USUARIO/pib-ecuador-analisis.git</code></li>
+        </ul>
+    </div>
+
+    <div class="step-box">
+        <h3>Paso 2: Configurar Identidad Local</h3>
+        <pre><span class="highlight"># Ejecutar en tu terminal (solo una vez)</span>
+git config --global user.name "TuNombreDeUsuario"
+git config --global user.email "tu-email@ejemplo.com"</pre>
+    </div>
+
+    <div class="step-box">
+        <h3>Paso 3: Inicializar y Subir</h3>
+        <pre><span class="highlight"># 1. Inicializar Git</span>
+git init
+
+<span class="highlight"># 2. Agregar archivos y primer commit</span>
+git add .
+git commit -m "Primera versión: Análisis completo del PIB Ecuador"
+
+<span class="highlight"># 3. Vincular con GitHub y subir</span>
+git remote add origin https://github.com/TU-USUARIO/pib-ecuador-analisis.git
+git push -u origin main</pre>
+    </div>
+
+    <h2>PARTE 2: Actualización de Cambios</h2>
+    <p>Cada vez que realices mejoras en tus archivos <code>.qmd</code> o datos, sigue este flujo:</p>
+
+    <div class="step-box">
+        <h3>Flujo de Trabajo Estándar</h3>
+        <pre><span class="highlight"># 1. Renderizar (Si usas Quarto)</span>
+quarto render
+
+<span class="highlight"># 2. Registrar cambios</span>
+git add .
+
+<span class="highlight"># 3. Guardar versión y subir</span>
+git commit -m "Mejorar colores del heatmap y ajustar estilos"
+git push origin main</pre>
+    </div>
+
+    <h2>Resolución de Errores Comunes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Error</th>
+                <th>Solución Rápida</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>"rejected" / "non-fast-forward"</strong></td>
+                <td><code>git pull origin main</code> antes del push.</td>
+            </tr>
+            <tr>
+                <td><strong>"nothing to commit"</strong></td>
+                <td>Guarda tus archivos (Ctrl+S) y verifica con <code>git status</code>.</td>
+            </tr>
+            <tr>
+                <td><strong>Conflictos en archivos</strong></td>
+                <td>Abre el archivo, borra las marcas <code><<<<</code> y <code>====</code>, guarda y haz commit.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="page-break-before: always;"></div>
+
+    <h2>Resumen Visual del Flujo</h2>
+    <div class="diagram">
+        <pre>
+┌─────────────────────────────────────────────────────────────┐
+│              FLUJO DE ACTUALIZACIÓN EN GITHUB               │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   PC LOCAL (Win 10)               GITHUB (NUBE)             │
+│   ─────────────────               ─────────────             │
+│                                                             │
+│   1. Modificas archivos .qmd                                │
+│      ↓                                                      │
+│   2. quarto render (genera docs/)                           │
+│      ↓                                                      │
+│   3. git add .                                              │
+│      ↓                                                      │
+│   4. git commit -m "mensaje"                                │
+│      ↓                                                      │
+│   5. git push origin main ──────────────→ 6. Recibe cambios │
+│                                              ↓              │
+│                                           7. GitHub Pages   │
+│                                              actualiza      │
+└─────────────────────────────────────────────────────────────┘
+        </pre>
+    </div>
+
+    <h2>Resumen de Buenas Prácticas</h2>
+    <table>
+        <tr>
+            <th width="50%"><span class="badge badge-success">SÍ HACER</span></th>
+            <th width="50%"><span class="badge badge-error">EVITAR</span></th>
+        </tr>
+        <tr>
+            <td>Siempre guardar (Ctrl+S) antes de Git.</td>
+            <td>Subir sin haber renderizado primero.</td>
+        </tr>
+        <tr>
+            <td>Mensajes de commit descriptivos.</td>
+            <td>Usar mensajes vagos como "cambios".</td>
+        </tr>
+        <tr>
+            <td>Verificar estado con <code>git status</code>.</td>
+            <td>Usar <code>--force</code> si sale un error de rechazo.</td>
+        </tr>
+    </table>
+
+    <footer style="margin-top: 30pt; text-align: center; color: #94a3b8; font-size: 8pt;">
+        Guía generada para el proyecto pib-ecuador-analisis • 2026
+    </footer>
+</body>
+</html>
+"""

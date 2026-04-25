@@ -243,13 +243,15 @@ heatmap = alt.Chart(df_heatmap).mark_rect(
         title='Sector Económico', 
         sort=None
     ),
-    color=alt.Color('variacion_pct:Q', 
+    color=alt.Color(
+        'variacion_pct:Q',
         title='Crecimiento (%)',
         scale=alt.Scale(
-            scheme='viridis', # Opción A: 'viridis' (profesional), Opción B: 'magma' (más cálido)
-            reverse=False 
+            scheme='spectral',
+            domainMid=0,
+            domain=[-0.02, 0.02]
         ),
-        legend=alt.Legend(format='.1%', gradientLength=200)
+        legend=alt.Legend(format='.1%', gradientLength=220)
     ),
     tooltip=[
         alt.Tooltip('anio:O', title='Año'),
@@ -316,12 +318,12 @@ radar_data['año'] = radar_data['año'].replace({
 # 4. Creación del gráfico con tamaño horizontal optimizado
 comparative_bars = alt.Chart(radar_data).mark_bar().encode(
     y=alt.Y('sector:N', 
-            title='Sector Económico', 
+            title='Sector Productivos', 
             sort='-x',
             axis=alt.Axis(labelLimit=300)), # Evita que los nombres largos se corten
     x=alt.X('variacion:Q', 
             title='Tasa de Variación (%)', 
-            axis=alt.Axis(format='.0%')),
+            axis=alt.Axis(format='.2%')),
     color=alt.Color('año:N', 
                     title='Periodo Analizado', 
                     scale=alt.Scale(domain=['2014 (Auge)', '2020 (COVID-19)'], 
@@ -344,8 +346,6 @@ comparative_bars = alt.Chart(radar_data).mark_bar().encode(
 ).facet(
     column=alt.Column('año:N', 
                       header=alt.Header(title=None, labelFontSize=13, labelFontWeight='bold'))
-).resolve_scale(
-    x='independent' # Permite escalas propias para apreciar mejor las caídas de 2020
 ).configure_facet(
     spacing=40 # Espacio equilibrado entre ambos gráficos
 ).configure_view(

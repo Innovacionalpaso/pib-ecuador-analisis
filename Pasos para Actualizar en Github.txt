@@ -1,0 +1,50 @@
+# OPCIÓN 01
+Paso 1: Ver qué cambios tienes (En el terminal dirigido a la carpeta del proyecto)
+
+git status
+Esto te mostrará los archivos que modificaste (en rojo).
+
+Paso 2: Agregar los cambios
+# Agregar todos los archivos modificados
+git add .
+
+# O agregar archivos específicos
+git add _quarto.yml
+git add index.qmd
+git add visualizations.qmd
+
+Paso 3: Crear un commit (guardar la versión)
+git commit -m "Descripción clara de lo que cambiaste"
+
+Ejemplos de mensajes útiles:
+git commit -m "Corregir configuración de ancho de página"
+git commit -m "Actualizar heatmap con colores viridis"
+git commit -m "Agregar nuevas visualizaciones al análisis"
+
+Paso 4: Subir los cambios a GitHub
+git push origin main
+
+Si tu rama se llama master en lugar de main:
+git push origin master
+
+
+
+# OPCIÓN 02 SI HUBIERA ERRORES AL VERIFICAR CAMBIOS
+
+# Ver diferencias con salida plana (sin visor)
+git diff --no-pager
+
+Paso 1: Agregar los archivos modificados
+git add docs/index.html docs/search.json docs/sitemap.xml docs/visualizations.html
+
+O más fácil, agregar todos los cambios de la carpeta docs/:
+git add docs/
+
+Paso 2: Crear un commit
+git commit -m "Actualizar visualizaciones y documentos HTML del sitio"
+
+Paso 3: Subir los cambios a GitHub
+git push origin main
+
+
+
