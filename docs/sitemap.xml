@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://[tu-usuario].github.io/[repositorio]/visualizations.html</loc>
+    <loc>https://github.com/Innovacionalpaso/pib-ecuador-analisis/visualizations.html</loc>
     <lastmod>2026-04-25T18:19:47.656Z</lastmod>
   </url>
   <url>
-    <loc>https://[tu-usuario].github.io/[repositorio]/data_cleaning.html</loc>
+    <loc>https://github.com/Innovacionalpaso/pib-ecuador-analisis/data_cleaning.html</loc>
     <lastmod>2026-04-25T04:04:12.347Z</lastmod>
-  </url>
-  <url>
-    <loc>https://[tu-usuario].github.io/[repositorio]/index.html</loc>
-    <lastmod>2026-04-25T14:42:19.207Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Innovacionalpaso/pib-ecuador-analisis/index.html</loc>

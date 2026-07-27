@@ -27,6 +27,7 @@ website:
       - icon: github
         href: https://github.com/Innovacionalpaso/pib-ecuador-analisis
 
+lang: es
 format:
   html:
     theme:
